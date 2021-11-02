@@ -50,33 +50,32 @@ class CertificateServiceImplTest {
 
     @Test
     void updateCertificates() throws Exception {
-        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(false);
+        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(true);
         certificateService.updateCertificate(validCertificate);
         Mockito.verify(certificatesDAO).update(validCertificate);
     }
 
     @Test
     void updateCertificatesExc() throws Exception {
-        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(true);
+        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(false);
         assertThrows(ServiceException.class, () -> certificateService.updateCertificate(validCertificate), "CreateCertificate fail due to null value of params.");
     }
 
     @Test
     void updateCertificatesSingleField() throws ServiceException, DAOException {
-        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(false);
+        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(true);
         certificateService.updateCertificatesSingleField("volumn", "fee", 5);
         Mockito.verify(certificatesDAO).updateCertificatesSingleField("volumn", "fee", 5);
     }
 
     @Test
     void updateCertificatesSingleFieldExc() throws ServiceException, DAOException {
-        Mockito.doThrow(new DAOException()).when(certificatesDAO).updateCertificatesSingleField("volumn", "fee", 5);
         assertThrows(ServiceException.class, () -> certificateService.updateCertificatesSingleField("volumn", "fee", 5), "CreateCertificate fail due to null value of params.");
     }
 
     @Test
     void updateCertificatesSingleFieldNotExist() throws ServiceException, DAOException {
-        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(true);
+        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(false);
         assertThrows(ServiceException.class, () -> certificateService.updateCertificatesSingleField("volumn", "fee", 5), "CreateCertificate fail due to null value of params.");
     }
 
@@ -88,8 +87,9 @@ class CertificateServiceImplTest {
 
     @Test
     void getCertificate() throws ServiceException {
-        certificateService.getCertificate(1);
-        Mockito.verify(certificatesDAO).get(1);
+        Mockito.when(certificateService.isCertificateExist(validCertificate.getId())).thenReturn(true);
+        certificateService.getCertificate(5);
+        Mockito.verify(certificatesDAO).get(5);
     }
 
     @Test
@@ -144,5 +144,18 @@ class CertificateServiceImplTest {
     void isCertificateExistExc() throws ServiceException, DAOException {
         Mockito.doThrow(new DAOException()).when(certificatesDAO).isCertificateExist(5);
         assertThrows(ServiceException.class, () -> certificateService.isCertificateExist(5), "UpdateCertificate fail");
+    }
+
+    @Test
+    void getCertificatesBySeveralTags() throws ServiceException, DAOException {
+        Mockito.when(tagService.isTagExist(1)).thenReturn(true);
+        certificateService.getCertificatesBySeveralTags(1, 1, 1);
+        Mockito.verify(certificatesDAO).getCertificatesBySeveralTags(1, 1, 1);
+    }
+
+    @Test
+    void getCertificatesBySeveralTagsTagNotExist() throws ServiceException, DAOException {
+        Mockito.when(tagService.isTagExist(1)).thenReturn(false);
+        assertThrows(ServiceException.class, () -> certificateService.getCertificatesBySeveralTags(1, 1, 1), "Expected ServiceException");
     }
 }

@@ -1,6 +1,7 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.DAOException;
+import com.epam.esm.dao.impl.CertificatesDAOImpl;
 import com.epam.esm.dao.impl.OrderDAOImpl;
 import com.epam.esm.dao.impl.UsersDAOImpl;
 import com.epam.esm.entity.Order;
@@ -21,6 +22,10 @@ class OrdersServiceImplTest {
     private OrderDAOImpl orderDAO;
     @Mock
     private UsersDAOImpl usersDAO;
+    @Mock
+    private CertificatesDAOImpl certificatesDAO;
+    @InjectMocks
+    private CertificateServiceImpl certificateService;
     @InjectMocks
     private OrdersServiceImpl service;
     @InjectMocks
@@ -28,13 +33,16 @@ class OrdersServiceImplTest {
 
     @Test
     void createOrderExc() throws ServiceException {
-        assertThrows(ServiceException.class, () -> service.createOrder(order), "CreateCertificate fail due to null value of params.");
+        order.setId(5);
+        Mockito.when(certificateService.isCertificateExist(order.getCertificateId())).thenReturn(false);
+        assertThrows(ServiceException.class, () -> service.createOrder(order), "Fail");
     }
 
     @Test
     void createOrder() throws ServiceException {
         order.setCertificateId(1);
         order.setPrice(11.2);
+        Mockito.when(certificateService.isCertificateExist(order.getCertificateId())).thenReturn(true);
         service.createOrder(order);
         Mockito.verify(orderDAO).save(order);
     }

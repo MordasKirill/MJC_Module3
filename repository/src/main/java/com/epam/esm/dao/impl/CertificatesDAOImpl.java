@@ -3,6 +3,7 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.dao.DAOException;
 import com.epam.esm.dao.Dao;
 import com.epam.esm.entity.Certificate;
+import com.epam.esm.entity.Order;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
+import javax.swing.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,8 +113,6 @@ public class CertificatesDAOImpl implements Dao<Certificate> {
 
     public boolean isCertificateExist(Integer id) throws DAOException {
         Session session = this.sessionFactory.getCurrentSession();
-        Query<?> criteriaQuery = session.createQuery("FROM Certificate WHERE id = :id");
-        criteriaQuery.setParameter("id", id);
-        return criteriaQuery.list().size() == 0;
+        return Optional.ofNullable(session.get(Certificate.class, id)).isPresent();
     }
 }

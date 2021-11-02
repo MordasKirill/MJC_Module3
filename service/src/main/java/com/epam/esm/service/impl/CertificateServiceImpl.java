@@ -47,7 +47,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public void updateCertificate(Certificate certificate) throws ServiceException {
-        if (isCertificateExist(certificate.getId())) {
+        if (!isCertificateExist(certificate.getId())) {
             throw new ServiceException("Cant find certificate with id:" + certificate.getId());
         }
         certificatesDAO.update(certificate);
@@ -58,7 +58,7 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             if (!Optional.ofNullable(id).isPresent()
                     || !Optional.ofNullable(value).isPresent()
-                    || isCertificateExist(id)) {
+                    || !isCertificateExist(id)) {
                 throw new ServiceException("Cant find certificate with id:" + id);
             }
             certificatesDAO.updateCertificatesSingleField(column, value, id);
@@ -74,7 +74,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public Optional<Certificate> getCertificate(Integer id) throws ServiceException {
-        if (!Optional.ofNullable(id).isPresent() || isCertificateExist(id)) {
+        if (!Optional.ofNullable(id).isPresent() || !isCertificateExist(id)) {
             throw new ServiceException("Cant find certificate with id:" + id);
         }
         return certificatesDAO.get(id);

@@ -1,6 +1,7 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.DAOException;
+import com.epam.esm.dao.impl.CertificatesDAOImpl;
 import com.epam.esm.dao.impl.OrderDAOImpl;
 import com.epam.esm.dao.impl.UsersDAOImpl;
 import com.epam.esm.entity.Order;
@@ -15,16 +16,25 @@ import java.util.Optional;
 @Service
 public class OrdersServiceImpl implements OrdersService {
     private final OrderDAOImpl orderDAOImpl;
+    private final CertificatesDAOImpl certificatesDAO;
     private final UsersDAOImpl usersDAO;
 
-    public OrdersServiceImpl(OrderDAOImpl orderDAOImpl, UsersDAOImpl usersDAO) {
-        this.orderDAOImpl = orderDAOImpl;
+    public OrdersServiceImpl(OrderDAOImpl orderDAOImpl, CertificatesDAOImpl certificatesDAO, UsersDAOImpl usersDAO) {
         this.usersDAO = usersDAO;
+        this.orderDAOImpl = orderDAOImpl;
+        this.certificatesDAO = certificatesDAO;
     }
 
     @Override
     public void createOrder(Order order) throws ServiceException {
-        orderDAOImpl.save(order);
+        try {
+            if (!certificatesDAO.isCertificateExist(order.getCertificateId())) {
+                throw new ServiceException("Cant find certificate with id: " + order.getCertificateId());
+            }
+            orderDAOImpl.save(order);
+        } catch (DAOException e) {
+            throw new ServiceException("CreateOrder fail.");
+        }
     }
 
     @Override
